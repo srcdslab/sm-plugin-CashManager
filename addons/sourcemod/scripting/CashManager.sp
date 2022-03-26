@@ -1,24 +1,27 @@
 #include <sourcemod>
+
 #pragma semicolon 1
+#pragma newdecls required
 
 #define MAXMATCHES 10
 
-new Address:AddAccountAddr;
-new Address:maxmoney[MAXMATCHES] = {Address_Null, ...};
-new matches = 0;
-new Handle:mp_maxmoney = INVALID_HANDLE;
+Address AddAccountAddr;
+Address maxmoney[MAXMATCHES];
+int matches = 0;
 
-public Plugin:myinfo = 
+ConVar mp_maxmoney;
+
+public Plugin myinfo = 
 {
 	name = "CashManager",
-	author = "Dr!fter",
+	author = "Dr!fter, .Rushaway",
 	description = "Patches max money",
-	version = "1.0.3"
+	version = "1.0.4"
 }
 
-public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
-	decl String:gamedir[PLATFORM_MAX_PATH];
+	char gamedir[PLATFORM_MAX_PATH];
 	GetGameFolderName(gamedir, sizeof(gamedir));
 	if(strcmp(gamedir, "cstrike") != 0)
 	{
@@ -36,49 +39,49 @@ public void OnPluginStart()
 	mp_maxmoney = CreateConVar("mp_maxmoney", "65000", "Set's max money limit", FCVAR_SPONLY|FCVAR_NOTIFY|FCVAR_REPLICATED);
 	HookConVarChange(mp_maxmoney, MaxMoneyChange);
 	
-	new Handle:gameconf = LoadGameConfigFile("CashManager.games");
-	if(gameconf == INVALID_HANDLE)
+	Handle hGameConf = LoadGameConfigFile("CashManager.games");
+	if(hGameConf == INVALID_HANDLE)
 		SetFailState("Failed to load gamedata CashManager.games.txt");
 	
-	AddAccountAddr = GameConfGetAddress(gameconf, "AddAccount");
+	AddAccountAddr = GameConfGetAddress(hGameConf, "AddAccount");
 	
 	if(!AddAccountAddr)
 		SetFailState("Failed to get AddAccount address");
 	
-	new len = GameConfGetOffset(gameconf, "AddAccountLen");
+	int len = GameConfGetOffset(hGameConf, "AddAccountLen");
 	
-	for(new i = 0; i <= len; i++)
+	for(int i = 0; i <= len; i++)
 	{
-		if(LoadFromAddress(AddAccountAddr+Address:i, NumberType_Int32) == 16000 && matches < MAXMATCHES)
+		if(LoadFromAddress(AddAccountAddr+view_as<Address>(i), NumberType_Int32) == 16000 && matches < MAXMATCHES)
 		{
-			maxmoney[matches] = AddAccountAddr+Address:i;
+			maxmoney[matches] = AddAccountAddr+view_as<Address>(i);
 			matches++;
 		}
 	}
 	PatchMoney();
 	
-	CloseHandle(gameconf);
+	CloseHandle(hGameConf);
 }
 
-public MaxMoneyChange(Handle:convar, const String:oldValue[], const String:newValue[])
+public void MaxMoneyChange(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	PatchMoney();
 }
 
 public void OnPluginEnd()
 {
-	for(new i = 0; i < matches; i++)
+	for(int i = 0; i < matches; i++)
 	{
 		StoreToAddress(maxmoney[i], 16000, NumberType_Int32);
 		maxmoney[i] = Address_Null;
 	}
 }
 
-PatchMoney()
+void PatchMoney()
 {	
-	new money = GetConVarInt(mp_maxmoney);
+	int money = GetConVarInt(mp_maxmoney);
 	
-	for(new i = 0; i < matches; i++)
+	for(int i = 0; i < matches; i++)
 	{
 		StoreToAddress(maxmoney[i], money, NumberType_Int32);
 	}

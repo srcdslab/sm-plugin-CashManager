@@ -35,21 +35,21 @@ public void OnPluginStart()
 {
 	SetConVarBounds(FindConVar("mp_startmoney"), ConVarBound_Upper, false);
 	SetConVarBounds(FindConVar("mp_startmoney"), ConVarBound_Lower, false);
-	
+
 	mp_maxmoney = CreateConVar("mp_maxmoney", "65000", "Set's max money limit", FCVAR_SPONLY|FCVAR_NOTIFY|FCVAR_REPLICATED);
 	HookConVarChange(mp_maxmoney, MaxMoneyChange);
-	
+
 	Handle hGameConf = LoadGameConfigFile("CashManager.games");
 	if(hGameConf == INVALID_HANDLE)
 		SetFailState("Failed to load gamedata CashManager.games.txt");
-	
+
 	AddAccountAddr = GameConfGetAddress(hGameConf, "AddAccount");
-	
+
 	if(!AddAccountAddr)
 		SetFailState("Failed to get AddAccount address");
-	
+
 	int len = GameConfGetOffset(hGameConf, "AddAccountLen");
-	
+
 	for(int i = 0; i <= len; i++)
 	{
 		if(LoadFromAddress(AddAccountAddr+view_as<Address>(i), NumberType_Int32) == 16000 && matches < MAXMATCHES)

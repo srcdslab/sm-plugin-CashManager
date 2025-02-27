@@ -30,8 +30,8 @@
 		{
 			"AddAccountLen"
 			{
-				"windows"		"278"
-				"linux"			"671"
+				"windows"		"278" // Outdated ?
+				"linux"			"1163"
 			}
 		}
 	}

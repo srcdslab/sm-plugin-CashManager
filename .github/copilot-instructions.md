@@ -8,16 +8,16 @@ This repository contains **CashManager**, a SourcePawn plugin for SourceMod that
 - **Language**: SourcePawn (.sp files)
 - **Platform**: SourceMod 1.11+ for Counter-Strike: Source only
 - **Plugin Type**: Memory patching plugin (modifies game memory directly)
-- **Build System**: SourceKnight (Python-based SourcePawn build tool)
+- **Build System**: Native GitHub Actions workflow (spcomp via rumblefrog/setup-sp)
 - **Complexity**: Low - single-file plugin with gamedata configuration
 
 ## Technical Environment
 
 ### Dependencies
-- **SourceMod**: 1.11.0+ (specified in sourceknight.yaml)
+- **SourceMod**: 1.12.x (installed in CI via rumblefrog/setup-sp)
 - **Game**: Counter-Strike: Source only (CS:S)
-- **Build Tool**: SourceKnight 0.1
-- **Compiler**: SourcePawn compiler (spcomp) via SourceKnight
+- **Build Tool**: Native GitHub Actions workflow (no external build tool)
+- **Compiler**: SourcePawn compiler (spcomp), provisioned by rumblefrog/setup-sp
 
 ### Project Structure
 ```
@@ -29,7 +29,6 @@ This repository contains **CashManager**, a SourcePawn plugin for SourceMod that
 │   │   └── CashManager.sp        # Main plugin source
 │   └── gamedata/
 │       └── CashManager.games.txt # Game memory signatures
-├── sourceknight.yaml            # Build configuration
 └── .gitignore                   # Git ignore patterns
 ```
 
@@ -94,22 +93,19 @@ void MaxMoneyChange()         // ConVar change handler
 
 ### Build Commands
 ```bash
-# Using SourceKnight (preferred method)
-# Note: CI uses maxime1907/action-sourceknight@v1 GitHub Action
-pip install sourceknight    # If not available in environment
-sourceknight build         # Builds to .sourceknight/package/
-
 # Manual compilation (if spcomp available)
-spcomp addons/sourcemod/scripting/CashManager.sp
+cd addons/sourcemod/scripting
+spcomp -i include -o ../plugins/CashManager.smx CashManager.sp
 
 # CI Build (GitHub Actions)
-# The repository uses action-sourceknight@v1 for automated builds
+# The repository uses a native GitHub Actions workflow with
+# rumblefrog/setup-sp to provision spcomp and compile directly.
 # See .github/workflows/ci.yml for the complete pipeline
 ```
 
 ### CI/CD Pipeline
 - **Trigger**: Push, PR, manual dispatch
-- **Build**: Ubuntu 24.04 with SourceKnight
+- **Build**: ubuntu-latest, spcomp provisioned via rumblefrog/setup-sp
 - **Output**: Compiled .smx plugin + gamedata package
 - **Release**: Automatic releases on tags and main/master branch
 
@@ -253,7 +249,7 @@ LogMessage("CashManager: AddAccount address: %x", AddAccountAddr);
 ### Essential Files
 - `CashManager.sp`: Main plugin logic
 - `CashManager.games.txt`: Memory signatures and offsets
-- `sourceknight.yaml`: Build configuration
+- `.github/workflows/ci.yml`: Build configuration
 
 ### Key ConVars
 - `mp_maxmoney`: Sets maximum money limit (default: 65000)
@@ -263,5 +259,5 @@ LogMessage("CashManager: AddAccount address: %x", AddAccountAddr);
 - `maxmoney[]`: Array of patched memory locations
 
 ### Build Output
-- Compiled plugin: `.sourceknight/package/common/addons/sourcemod/plugins/CashManager.smx`
-- Gamedata: `addons/sourcemod/gamedata/CashManager.games.txt`
+- Compiled plugin: `addons/sourcemod/plugins/CashManager.smx`
+- Gamedata: `common/addons/sourcemod/gamedata/CashManager.games.txt`

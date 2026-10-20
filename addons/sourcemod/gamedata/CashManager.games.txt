@@ -14,6 +14,10 @@
 				{
 					"signature"	"AddAccount_Sig"
 				}
+				"linux64"
+				{
+					"signature"	"AddAccount_Sig"
+				}
 			}
 		}
 		"Signatures"
@@ -23,6 +27,7 @@
 				"library"	"server"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x20\x89\x4D\xFC\x8D\x45\x08"
 				"linux"		"@_ZN9CCSPlayer10AddAccountEibbPKc"
+				"linux64"		"@_ZN9CCSPlayer10AddAccountEibbPKc"
 			}
 
 		}
@@ -32,6 +37,7 @@
 			{
 				"windows"		"278" // Outdated ?
 				"linux"			"1168"
+				"linux64"			"1180"
 			}
 		}
 	}

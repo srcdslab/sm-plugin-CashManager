@@ -16,7 +16,7 @@ public Plugin myinfo =
 	name = "CashManager",
 	author = "Dr!fter, .Rushaway",
 	description = "Patches max money",
-	version = "1.2.1"
+	version = "1.2.2"
 }
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
@@ -33,22 +33,22 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public void OnPluginStart()
 {
-	SetConVarBounds(FindConVar("mp_startmoney"), ConVarBound_Upper, false);
-	SetConVarBounds(FindConVar("mp_startmoney"), ConVarBound_Lower, false);
+	FindConVar("mp_startmoney").SetBounds(ConVarBound_Upper, false);
+	FindConVar("mp_startmoney").SetBounds(ConVarBound_Lower, false);
 
 	mp_maxmoney = CreateConVar("mp_maxmoney", "65000", "Set's max money limit", FCVAR_SPONLY|FCVAR_NOTIFY|FCVAR_REPLICATED);
-	HookConVarChange(mp_maxmoney, MaxMoneyChange);
+	mp_maxmoney.AddChangeHook(MaxMoneyChange);
 
-	Handle hGameConf = LoadGameConfigFile("CashManager.games");
-	if(hGameConf == INVALID_HANDLE)
+	GameData hGameConf = new GameData("CashManager.games");
+	if(hGameConf == null)
 		SetFailState("Failed to load gamedata CashManager.games.txt");
 
-	AddAccountAddr = GameConfGetAddress(hGameConf, "AddAccount");
+	AddAccountAddr = hGameConf.GetAddress("AddAccount");
 
 	if(!AddAccountAddr)
 		SetFailState("Failed to get AddAccount address");
 
-	int len = GameConfGetOffset(hGameConf, "AddAccountLen");
+	int len = hGameConf.GetOffset("AddAccountLen");
 
 	for(int i = 0; i <= len; i++)
 	{
@@ -60,7 +60,7 @@ public void OnPluginStart()
 	}
 	PatchMoney();
 	
-	CloseHandle(hGameConf);
+	delete hGameConf;
 }
 
 public void MaxMoneyChange(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -79,7 +79,7 @@ public void OnPluginEnd()
 
 void PatchMoney()
 {	
-	int money = GetConVarInt(mp_maxmoney);
+	int money = mp_maxmoney.IntValue;
 	
 	for(int i = 0; i < matches; i++)
 	{

@@ -16,7 +16,7 @@ public Plugin myinfo =
 	name = "CashManager",
 	author = "Dr!fter, .Rushaway",
 	description = "Patches max money",
-	version = "1.2.2"
+	version = "1.2.3"
 }
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
